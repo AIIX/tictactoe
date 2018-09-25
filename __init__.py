@@ -61,30 +61,29 @@ class TicTacToeSkill(MycroftSkill):
         while r is False: 
             //do nothing
             time.sleep(2)
+        else:
             if gameIsPlaying == True:
                 move = self.getPlayerMove(theBoard)
                 self.makeMove(theBoard, playLetter, move)
                 self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe", "playerTurn": "player", "playerMove": move}))
             else:
                 LOGGER.info("Do Nothing")
-
-        if r is True:
-            move = self.getPlayerMove(theBoard)
-            self.makeMove(theBoard, playLetter, move)
-
-        if self.isWinner(theBoard, playerLetter):
-            self.drawBoard(theBoard)
-            self.speak('Congrats You Won The Game')
-            self.resetBoard()
-            gameIsPlaying = False
-        else:
-            if self.isBoardFull(theBoard):
+                move = self.getPlayerMove(theBoard)
+                self.makeMove(theBoard, playLetter, move)
+                
+            if self.isWinner(theBoard, playerLetter):
                 self.drawBoard(theBoard)
-                self.speak('The game is a tie!')
+                self.speak('Congrats You Won The Game')
                 self.resetBoard()
+                gameIsPlaying = False
             else:
-                turn = 'computer'
-                whoPlays = self.checkWhosTurn(turn)
+                if self.isBoardFull(theBoard):
+                    self.drawBoard(theBoard)
+                    self.speak('The game is a tie!')
+                    self.resetBoard()
+                else:
+                    turn = 'computer'
+                    whoPlays = self.checkWhosTurn(turn)
     
     @intent_handler(IntentBuilder("ComputerTurn").require("ComputerTurnKeyword").build())
     def handle_computer_turn_intent(self, message):
