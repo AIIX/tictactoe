@@ -1,3 +1,3 @@
 # tictactoe
 tic tac toe mycroft skill
-### Credits: AIIX, inventwithpython.com
+### Credits: aix, inventwithpython.com
