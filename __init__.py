@@ -58,18 +58,20 @@ class TicTacToeSkill(MycroftSkill):
         playLetter = playerLetter
         self.drawBoard(theBoard)
         r = self.speak('What is your next move?', expect_response=True)
-        if r is True:
-            move = self.getPlayerMove(theBoard)
-            self.makeMove(theBoard, playLetter, move)
-        else:
-            time.sleep(40)
+        while r is False: 
+            //do nothing
+            time.sleep(2)
             if gameIsPlaying == True:
                 move = self.getPlayerMove(theBoard)
                 self.makeMove(theBoard, playLetter, move)
                 self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe", "playerTurn": "player", "playerMove": move}))
             else:
                 LOGGER.info("Do Nothing")
-        
+
+        if r is True:
+            move = self.getPlayerMove(theBoard)
+            self.makeMove(theBoard, playLetter, move)
+
         if self.isWinner(theBoard, playerLetter):
             self.drawBoard(theBoard)
             self.speak('Congrats You Won The Game')
