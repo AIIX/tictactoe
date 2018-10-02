@@ -13,66 +13,57 @@ Mycroft.ScrollableDelegate {
     property var playerTurn
     property var playerMove
     property var computerMove
-    property alias gameMessage: messageBoard.text
+    property var gameMessage
     property var playerSymbol
     property bool boardClear
+    property bool pturn
+    backgroundImage: "images/background.png"
     
     onBoardClearChanged: {
-        if(boardClear){
-            Logic.clearBoard()
-        }
+        Logic.clearBoard()
+    }
+    
+    onGameMessageChanged: {
+        messageBoard.text = gameMessage
     }
     
     onPlayerTurnChanged: {
-        console.log("fromMainQML Player Turn:" + playerTurn)
-        console.log("fromMainQML Player Move:" + playerMove)
-        console.log("fromMainQML Computer Move:" + computerMove)
         if(playerTurn.indexOf("player") !== -1){
             playerSymbol = "X"
-            Logic.makeMove(mapMoveToGrid(playerMove), playerSymbol)
+            pturn = true
+            Logic.makeMove(Logic.mapMoveToLocalGrid(playerMove), playerSymbol)
         }
         else {
             playerSymbol = "O"
-            Logic.makeMove(mapMoveToGrid(computerMove), playerSymbol)
+            pturn = false
+            Logic.makeMove(Logic.mapMoveToLocalGrid(computerMove), playerSymbol)
         }
     }
     
-    function mapMoveToGrid(move){
-        switch(move) {
-            case 1:
-                return 6
-                break
-            case 2:
-                return 7
-                break
-            case 3:
-                return 8
-                break
-            case 4:
-                return 3
-                break
-            case 5:
-                return 4
-                break
-            case 6:
-                return 5
-                break
-            case 7:
-                return 0
-                break
-            case 8:
-                return 1
-                break
-            case 9:
-                return 2
-                break
+    Rectangle {
+        id: topArea
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.leftMargin: -Kirigami.Units.gridUnit * 1
+        anchors.right: parent.right
+        anchors.rightMargin: -Kirigami.Units.gridUnit * 1
+        anchors.topMargin: -Kirigami.Units.gridUnit * 1
+        height: Kirigami.Units.gridUnit * 2.5
+        color: Kirigami.Theme.backgroundColor
+        Kirigami.Heading {
+            id: messageBoard
+            anchors.fill: parent
+            anchors.leftMargin: Kirigami.Units.gridUnit * 1
+            level: 3
         }
     }
-        
-    Rectangle {
+            
+    Item {
         id: game
-        
-        width: display.width; height: display.height + 10
+        anchors.top: topArea.bottom
+        width: display.width; 
+        height: display.height + 10
+        property bool running
         
         Image {
             id: boardImage
@@ -97,18 +88,16 @@ Mycroft.ScrollableDelegate {
                         height: board.height/3
                         
                         onClicked: {
+                        if(pturn){
                             if (Logic.canPlayAtPos(index)) {
-                                Logic.makeMove(index, "O")
-                                console.log(index)
+                                Logic.makeMove(index, playerSymbol)
+                                Mycroft.MycroftController.sendText(Logic.mapMoveToSkillGrid(index))
+                                }
                             }
                         }
                     }
                 }
             }
         }
-    }
-    Label {
-        id: messageBoard
-        Layout.fillWidth: true
     }
 }

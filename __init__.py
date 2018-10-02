@@ -1,10 +1,6 @@
 """
 TicTacToe Mycroft Skill.
 """
-import re
-import sys
-import requests
-import unidecode
 import random
 import time
 from adapt.intent import IntentBuilder
@@ -24,6 +20,7 @@ playerLetter = "X"
 computerLetter = "O"
 gameIsPlaying = ""
 globalMove = ""
+playerHasMoved = False
 
 class TicTacToeSkill(MycroftSkill):
     def __init__(self):
@@ -55,30 +52,25 @@ class TicTacToeSkill(MycroftSkill):
     def handle_player_turn_intent(self, message):
         global playerLetter
         global gameIsPlaying
+        global playerHasMoved
         playLetter = playerLetter
         self.drawBoard(theBoard)
-        r = self.speak('What is your next move?', expect_response=True)
-        if r is True:
-            move = self.getPlayerMove(theBoard)
-            self.makeMove(theBoard, playLetter, move)
-        else:
-            time.sleep(40)
-            if gameIsPlaying == True:
-                move = self.getPlayerMove(theBoard)
-                self.makeMove(theBoard, playLetter, move)
-                self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe", "playerTurn": "player", "playerMove": move}))
-            else:
-                LOGGER.info("Do Nothing")
+        self.speak('What is your next move?', expect_response=True)
+        self.makePlayerMove();
         
         if self.isWinner(theBoard, playerLetter):
             self.drawBoard(theBoard)
-            self.speak('Congrats You Won The Game')
+            winMessage = 'Congrats You Won The Game'
+            self.speak(winMessage)
+            self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe/finished", "gameMessage": winMessage}))
             self.resetBoard()
             gameIsPlaying = False
         else:
             if self.isBoardFull(theBoard):
                 self.drawBoard(theBoard)
-                self.speak('The game is a tie!')
+                tieMessage = 'The game is a tie!' 
+                self.speak(tieMessage)
+                self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe/finished", "gameMessage": tieMessage}))
                 self.resetBoard()
             else:
                 turn = 'computer'
@@ -94,13 +86,17 @@ class TicTacToeSkill(MycroftSkill):
 
         if self.isWinner(theBoard, computerLetter):
             self.drawBoard(theBoard)
-            self.speak('I have beaten You, You Loose')
+            looseMessage = 'I have beaten You, You Loose'
+            self.speak(looseMessage)
+            self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe/finished", "gameMessage": looseMessage}))
             self.resetBoard()
             gameIsPlaying = False
         else:
             if self.isBoardFull(theBoard):
                 self.drawBoard(theBoard)
-                self.speak('The game is a tie!')
+                tieMessage = 'The game is a tie!' 
+                self.speak(tieMessage)
+                self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe/finished", "gameMessage": tieMessage}))
             else:
                 turn = 'player'
                 whoPlays = self.checkWhosTurn(turn)
@@ -111,35 +107,51 @@ class TicTacToeSkill(MycroftSkill):
         utterance = utterance.replace(message.data.get('PlayerKey'), '')
         searchString = utterance.replace(" ", "")
         global globalMove
+        global playerHasMoved
         self.speak(searchString)
+        if searchString and searchString.strip():
+            self.speak("PlayerHasMoved")
+            playerHasMoved = True
         
         if searchString == "topleft":
             globalMove = 7
+            searchString = ""
         elif searchString == "topright":
             globalMove = 9
+            searchString = ""
         elif searchString == "topmiddle":
             globalMove = 8
+            searchString = ""
         elif searchString == "topcenter":
             globalMove = 8
+            searchString = ""
         elif searchString == "middleleft":
             globalMove = 4
+            searchString = ""
         elif searchString == "middle":
             globalMove = 5
+            searchString = ""
         elif searchString == "center":
             globalMove = 5
+            searchString = ""
         elif searchString == "middleright":
             globalMove = 6
+            searchString = ""
         elif searchString == "bottomleft":
             globalMove = 1
+            searchString = ""
         elif searchString == "bottommiddle":
             globalMove = 2
+            searchString = ""
         elif searchString == "bottomcenter":
             globalMove = 2
+            searchString = ""
         elif searchString == "bottomright":
             globalMove = 3
+            searchString = ""
         else:
             self.speak("No Valid Move Found")
-    
+        
     @intent_handler(IntentBuilder("EndGame").require("EndGameKey").build())
     def handle_end_game_intent(self, message):
         self.resetBoard()
@@ -147,7 +159,38 @@ class TicTacToeSkill(MycroftSkill):
         global gameIsPlaying
         turn = "endGame"
         gameIsPlaying = False
+        self.stop()
         whoPlays = self.checkWhosTurn(turn)
+        
+    def makePlayerMove(self):
+        global theBoard
+        global playerLetter
+        global gameIsPlaying
+        global playerHasMoved
+        playLetter = playerLetter
+        
+        while not playerHasMoved:
+            time.sleep(1)
+        
+        if playerHasMoved is True:
+            #time.sleep(10)
+            if gameIsPlaying == True:
+                move = self.getPlayerMove(theBoard)
+                self.makeMove(theBoard, playLetter, move)
+                self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe", "playerTurn": "player", "playerMove": move}))
+                playerHasMoved = False;
+            else:
+                LOGGER.info("Do Nothing")
+        else:
+            #time.sleep(30)
+            if gameIsPlaying == True:
+                move = self.getPlayerMove(theBoard)
+                self.makeMove(theBoard, playLetter, move)
+                self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe", "playerTurn": "player", "playerMove": move}))
+                playerHasMoved = False;
+            else:
+                LOGGER.info("Do Nothing")
+    
     
     def checkWhosTurn(self, turn):
         if gameIsPlaying == True:
