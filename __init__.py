@@ -30,7 +30,7 @@ class TicTacToeSkill(MycroftSkill):
         """    
         super(TicTacToeSkill, self).__init__(name="TicTacToeSkill")
         turn = self.whoGoesFirst()
-        global turn
+        #global turn
 
     @intent_handler(IntentBuilder("PlayerInit").require("PlayerInitKeyword").build())
     def handle_player_init_intent(self, message):
