@@ -21,6 +21,7 @@ computerLetter = "O"
 gameIsPlaying = ""
 globalMove = ""
 playerHasMoved = False
+turn = ""
 
 class TicTacToeSkill(MycroftSkill):
     def __init__(self):
