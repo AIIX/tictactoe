@@ -45,7 +45,8 @@ class TicTacToeSkill(MycroftSkill):
         global theBoard
         global turn
         gameIsPlaying = True
-        self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe", "boardClear": True}))
+        self.gui["boardClear"] = True
+        self.gui.show_page("tictactoe.qml")
         turn = self.whoGoesFirst()
         whoPlays = self.checkWhosTurn(turn)
         
@@ -63,7 +64,8 @@ class TicTacToeSkill(MycroftSkill):
             self.drawBoard(theBoard)
             winMessage = 'Congrats You Won The Game'
             self.speak(winMessage)
-            self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe/finished", "gameMessage": winMessage}))
+            self.gui["gameMessage"] = winMessage
+            self.gui.show_page("finished.qml")
             self.resetBoard()
             gameIsPlaying = False
         else:
@@ -71,7 +73,8 @@ class TicTacToeSkill(MycroftSkill):
                 self.drawBoard(theBoard)
                 tieMessage = 'The game is a tie!' 
                 self.speak(tieMessage)
-                self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe/finished", "gameMessage": tieMessage}))
+                self.gui["gameMessage"] = tieMessage
+                self.gui.show_page("finished.qml")
                 self.resetBoard()
             else:
                 turn = 'computer'
@@ -83,13 +86,16 @@ class TicTacToeSkill(MycroftSkill):
         compLetter = computerLetter
         move = self.getComputerMove(theBoard, compLetter)
         self.makeMove(theBoard, computerLetter, move)
-        self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe", "playerTurn": "computer", "computerMove": move}))
+        self.gui["playerTurn"] = "computer"
+        self.gui["computerMove"] = move
+        self.gui.show_page("tictactoe.qml")
 
         if self.isWinner(theBoard, computerLetter):
             self.drawBoard(theBoard)
             looseMessage = 'I have beaten You, You Loose'
             self.speak(looseMessage)
-            self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe/finished", "gameMessage": looseMessage}))
+            self.gui["gameMessage"] = looseMessage
+            self.gui.show_page("finished.qml")
             self.resetBoard()
             gameIsPlaying = False
         else:
@@ -97,7 +103,8 @@ class TicTacToeSkill(MycroftSkill):
                 self.drawBoard(theBoard)
                 tieMessage = 'The game is a tie!' 
                 self.speak(tieMessage)
-                self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe/finished", "gameMessage": tieMessage}))
+                self.gui["gameMessage"] = tieMessage
+                self.gui.show_page("finished.qml")
             else:
                 turn = 'player'
                 whoPlays = self.checkWhosTurn(turn)
@@ -178,7 +185,11 @@ class TicTacToeSkill(MycroftSkill):
             if gameIsPlaying == True:
                 move = self.getPlayerMove(theBoard)
                 self.makeMove(theBoard, playLetter, move)
-                self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe", "playerTurn": "player", "playerMove": move}))
+                #self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe", "playerTurn": "player", "playerMove": move}))
+                self.gui["playerTurn"] = "player"
+                self.gui["playerMove"] = move
+                self.gui.show_page("tictactoe.qml")
+                
                 playerHasMoved = False;
             else:
                 LOGGER.info("Do Nothing")
@@ -187,7 +198,10 @@ class TicTacToeSkill(MycroftSkill):
             if gameIsPlaying == True:
                 move = self.getPlayerMove(theBoard)
                 self.makeMove(theBoard, playLetter, move)
-                self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe", "playerTurn": "player", "playerMove": move}))
+                #self.enclosure.bus.emit(Message("metadata", {"type": "tictactoe", "playerTurn": "player", "playerMove": move}))
+                self.gui["playerTurn"] = "player"
+                self.gui["playerMove"] = move
+                self.gui.show_page("tictactoe.qml")
                 playerHasMoved = False;
             else:
                 LOGGER.info("Do Nothing")

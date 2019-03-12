@@ -8,16 +8,16 @@ import Mycroft 1.0 as Mycroft
 
 Mycroft.ScrollableDelegate {
     id: delegate
-    graceTime: 80000
+    //graceTime: 80000
     property bool running: true
-    property var playerTurn
-    property var playerMove
-    property var computerMove
-    property var gameMessage
-    property var playerSymbol
-    property bool boardClear
+    property var playerTurn: sessionData.playerTurn
+    property var playerMove: sessionData.playerMove
+    property var computerMove: sessionData.computerMove
+    property var gameMessage: sessionData.gameMessage
+    property var playerSymbol: sessionData.playerSymbol
+    property bool boardClear: sessionData.boardClear
     property bool pturn
-    backgroundImage: "images/background.png"
+    //backgroundImage: "images/background.png"
     
     onBoardClearChanged: {
         Logic.clearBoard()
